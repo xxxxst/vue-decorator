@@ -1,7 +1,7 @@
-import { Component } from 'vue';
+import { Component, ComponentOptions } from 'vue';
 import { VueConstructor, Vue } from 'vue-class-component';
 
-declare function Comp(comps?: Record<string, Component>): (target: VueConstructor<Vue>) => any;
+declare function Comp(comps?: Record<string, Component>, options?: ComponentOptions): (target: VueConstructor<Vue>) => any;
 
 declare function Inject(): (target: Vue, key: string) => void;
 

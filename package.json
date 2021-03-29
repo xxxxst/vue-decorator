@@ -1,6 +1,6 @@
 {
 	"name": "@xxxxst/vue-decorator",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"description": "typescript decorator for vue3 or high",
 	"main": "dist/vue-decorator.cjs.js",
 	"module": "dist/vue-decorator.esm.js",
@@ -8,14 +8,14 @@
 	"private": false,
 	"author": "xxxxst",
 	"license": "MIT",
-	"files": [
-		"dist"
-	],
 	"scripts": {
 		"build:source": "cross-env CREATE_DTS=0 rollup -c",
 		"build:dts": "cross-env CREATE_DTS=1 rollup -c",
 		"build": "yarn build:source && yarn build:dts"
 	},
+	"files": [
+		"dist"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/xxxxst/vue-decorator.git"

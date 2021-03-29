@@ -5,7 +5,7 @@
  *--------------------------------------------------------------------------------------------
 */
 
-import { Vue } from 'vue-class-component';
+import type { Vue } from 'vue-class-component';
 
 //attribute decorator
 export default function Prop() {
@@ -17,5 +17,13 @@ export default function Prop() {
 			type: [Object, Array, String, Number, Boolean, Function],
 			default: undefined
 		};
+
+		// var val = undefined;
+		// Object.defineProperty(objProp[key], "default", {
+		// 	enumerable: true,
+		// 	configurable: true,
+		// 	get: function (this: any) { console.warn("222", key, this); return val; },
+		// 	set: (value: any) => { val = value; },
+		// });
 	}
 }

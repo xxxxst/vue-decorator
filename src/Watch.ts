@@ -5,7 +5,7 @@
  *--------------------------------------------------------------------------------------------
 */
 
-import { Vue } from 'vue-class-component';
+import type { Vue } from 'vue-class-component';
 
 interface WathOption {
 	name?: string;

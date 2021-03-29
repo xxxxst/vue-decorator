@@ -12,8 +12,9 @@ import dts from "rollup-plugin-dts";
 var isCreateDts = process.env.CREATE_DTS==1;
 
 var outputSource = [
-	{ file: "dist/vue-decorator.cjs.js", format: "cjs", plugins: [terser({ format: { comments: false } })] },
-	{ file: "dist/vue-decorator.esm.js", format: "esm", sourcemap: true, plugins: [terser({ format: { comments: false } })] },
+	{ file: "dist/vue-decorator.cjs.js", format: "cjs" },
+	// { file: "dist/vue-decorator.esm.js", format: "esm", sourcemap: true, plugins: [terser({ format: { comments: false } })] },
+	{ file: "dist/vue-decorator.esm.js", format: "esm", sourcemap: true },
 ];
 var outputDts = [
 	{ file: "dist/vue-decorator.d.ts", format: "es" },

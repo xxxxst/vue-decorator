@@ -5,11 +5,29 @@
  *--------------------------------------------------------------------------------------------
 */
 
-import { Component, computed } from 'vue';
+import { Component, computed, ComponentOptions } from 'vue';
 import { createDecorator, Vue, VueConstructor } from 'vue-class-component';
 
+function extend(obj, ...args) {
+	for (var i = 0; i < args.length; ++i) {
+		for (var key in args[i]) {
+			if (typeof (args[i][key]) != "object" || args[i][key] == null) {
+				obj[key] = args[i][key];
+				continue;
+			}
+
+			if (!obj[key] || typeof (obj[key]) != "object" || obj[key] == null) {
+				obj[key] = args[i][key];
+				continue;
+			}
+
+			extend(obj[key], args[i][key]);
+		}
+	}
+}
+
 //class decorator
-export default function Comp(comps?: Record<string, Component>) {
+export default function Comp(comps?: Record<string, Component>, options?: ComponentOptions) {
 	comps = comps || {};
 
 	return (target: VueConstructor<Vue>) => {
@@ -20,8 +38,11 @@ export default function Comp(comps?: Record<string, Component>) {
 		for (var key in comps) {
 			objComp[key] = comps[key];
 		}
-		
-		var needProxyComp = false;
+
+		var cfgData = {
+			mapInject: {},
+			objProp: {},
+		};
 
 		// Provide
 		if (obj.provide) {
@@ -35,52 +56,29 @@ export default function Comp(comps?: Record<string, Component>) {
 			}
 		}
 
+		var isRegistVH = false;
 		// Inject
-		var mapInject = {};
 		if (obj.inject) {
-			needProxyComp = true;
 			for (var i = 0; i < obj.inject.length; ++i) {
-				mapInject[obj.inject[i]] = true;
+				cfgData.mapInject[obj.inject[i]] = true;
+				isRegistVH = true;
 			}
 		}
-		
+
 		// Model
 		var objProp = obj.props || (obj.props = {});
-		if (!needProxyComp) {
-			for (var key in objProp) {
-				if (objProp[key]._isModel) {
-					needProxyComp = true;
-					break;
-				}
+		for (var key in objProp) {
+			if (objProp[key]._isModel) {
+				isRegistVH = true;
+				break;
 			}
 		}
+		cfgData.objProp = objProp;
+
+		extend(obj, options);
 
 		createDecorator((componentOptions, handler) => {
 			var mixins = componentOptions.mixins || (componentOptions.mixins = []);
-
-			function initModel(obj) {
-				var oldProxy = obj["_"].proxy;
-				obj["_"].proxy = new Proxy(oldProxy, {
-					get: (target2, key2) => {
-						// console.info("provide", key2, mapInject);
-						if (key2 in mapInject) {
-							return target2[key2].value;
-						} else {
-							return target2[key2];
-						}
-					},
-					set: (target2, key2: any, value) => {
-						if (!(key2 in objProp)) {
-							target2[key2] = value;
-						} else if (objProp[key2]._isModel) {
-							target2.$emit("update:" + key2, value);
-						} else {
-							target2[key2] = value;
-						}
-						return true;
-					},
-				});
-			}
 
 			mixins.push({
 				data: function () {
@@ -89,9 +87,8 @@ export default function Comp(comps?: Record<string, Component>) {
 						// default value
 						this["_"].props[key] = this["_"].props[key] || objProp[key].default;
 					}
-					// init Model
-					if (needProxyComp) {
-						initModel(this);
+					if (isRegistVH) {
+						this["_"]["_vd_"] = cfgData;
 					}
 
 					return {};
@@ -99,15 +96,19 @@ export default function Comp(comps?: Record<string, Component>) {
 			});
 		})(target.prototype, key);
 
-		return class extends target {
+		class VueComponentHandler extends target {
 			constructor(...args) {
 				super(...args);
 
-				var objProp = obj.props || (obj.props = {});
+				// var objProp = obj.props || (obj.props = {});
 				for (var key in objProp) {
 					objProp[key].default = this[key];
 				}
 			}
-		} as any;
+		};
+
+		VueComponentHandler["__o"] = obj;
+
+		return VueComponentHandler as any
 	}
 }

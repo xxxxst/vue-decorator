@@ -5,7 +5,7 @@
  *--------------------------------------------------------------------------------------------
 */
 
-import { Vue } from 'vue-class-component';
+import type { Vue } from 'vue-class-component';
 
 //attribute decorator
 export default function Model() {
