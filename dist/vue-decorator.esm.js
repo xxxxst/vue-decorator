@@ -153,6 +153,7 @@ function Comp(comps, options) {
             }
             return VueComponentHandler;
         }(target));
+        delete target["__o"];
         VueComponentHandler["__o"] = obj;
         return VueComponentHandler;
     };

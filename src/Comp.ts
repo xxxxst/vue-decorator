@@ -107,8 +107,9 @@ export default function Comp(comps?: Record<string, Component>, options?: Compon
 			}
 		};
 
+		delete target["__o"];
 		VueComponentHandler["__o"] = obj;
 
-		return VueComponentHandler as any
+		return VueComponentHandler as any;
 	}
 }
