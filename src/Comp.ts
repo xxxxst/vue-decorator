@@ -85,13 +85,6 @@ export default function Comp(comps?: Record<string, Component>, options?: Compon
 		cfgData.objProp = objProp;
 
 		for (var key in options) {
-			if ((key == "emits") && (options.emits instanceof Array)) {
-				for(var i = 0 ;i < options.emits.length; ++i) {
-					var it = options.emits[i];
-					obj.emits[it] = null;
-				}
-				continue;
-			}
 			
 			if (typeof (options[key]) != "object" || options[key] == null) {
 				obj[key] = options[key];
@@ -100,6 +93,14 @@ export default function Comp(comps?: Record<string, Component>, options?: Compon
 
 			if (!obj[key] || typeof (obj[key]) != "object" || obj[key] == null) {
 				obj[key] = options[key];
+				continue;
+			}
+			
+			if ((key == "emits") && (options.emits instanceof Array)) {
+				for(var i = 0 ;i < options.emits.length; ++i) {
+					var it = options.emits[i];
+					obj.emits[it] = null;
+				}
 				continue;
 			}
 
