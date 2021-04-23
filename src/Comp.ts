@@ -8,20 +8,29 @@
 import { Component, computed, ComponentOptions } from 'vue';
 import { createDecorator, Vue, VueConstructor } from 'vue-class-component';
 
-function extend(obj, ...args) {
+function mix(obj, ...args) {
 	for (var i = 0; i < args.length; ++i) {
 		for (var key in args[i]) {
-			if (typeof (args[i][key]) != "object" || args[i][key] == null) {
-				obj[key] = args[i][key];
+			var argTmp = args[i][key];
+
+			if (typeof (argTmp) != "object" || argTmp == null) {
+				obj[key] = argTmp;
 				continue;
 			}
 
 			if (!obj[key] || typeof (obj[key]) != "object" || obj[key] == null) {
-				obj[key] = args[i][key];
+				obj[key] = argTmp;
 				continue;
 			}
 
-			extend(obj[key], args[i][key]);
+			if ((obj[key] instanceof Array) && (argTmp instanceof Array)) {
+				for (var j = 0; j < argTmp.length; ++j) {
+					obj[key].push(argTmp[j]);
+				}
+				continue;
+			}
+
+			mix(obj[key], argTmp);
 		}
 	}
 }
@@ -75,7 +84,35 @@ export default function Comp(comps?: Record<string, Component>, options?: Compon
 		}
 		cfgData.objProp = objProp;
 
-		extend(obj, options);
+		for (var key in options) {
+			if ((key == "emits") && (options.emits instanceof Array)) {
+				for(var i = 0 ;i < options.emits.length; ++i) {
+					var it = options.emits[i];
+					obj.emits[it] = null;
+				}
+				continue;
+			}
+			
+			if (typeof (options[key]) != "object" || options[key] == null) {
+				obj[key] = options[key];
+				continue;
+			}
+
+			if (!obj[key] || typeof (obj[key]) != "object" || obj[key] == null) {
+				obj[key] = options[key];
+				continue;
+			}
+
+			if ((obj[key] instanceof Array) && (options[key] instanceof Array)) {
+				for (var i = 0; i < options[key].length; ++i) {
+					obj[key].push(options[key][i]);
+				}
+				continue;
+			}
+
+			mix(obj[key], options[key]);
+		}
+		// mix(obj, options);
 
 		createDecorator((componentOptions, handler) => {
 			var mixins = componentOptions.mixins || (componentOptions.mixins = []);
